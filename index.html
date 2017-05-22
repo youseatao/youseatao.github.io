@@ -274,6 +274,120 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/21/Cplusplus-heap-and-stack/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="youseatao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="code and insist">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/21/Cplusplus-heap-and-stack/" itemprop="url">C++中的栈和堆以及内存的分配方式</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-21T18:58:55+08:00">
+                2017-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="引"><a href="#引" class="headerlink" title="引"></a>引</h1><p>在C++中，当我们需要动态分配内存时，会使用new关键字，后面跟着数据类型，返回的是分配好的内存空间的首地址，动态分配的内存空间会存在称为”堆”的地方，当我们不再使用此数据时，需要进行delete(即告诉操作系统此内存空间不再使用)，否则会造成内存泄漏</p>
+<p>当我们使用局部变量的时候，我们并不用关心变量的内存释放问题，那是因为局部变量由语言机制自动分配在称为”栈”的地方，当离开局部变量所在的范围时，会自动释放。</p>
+<p>本文探讨什么时候使用局部变量，什么时候使用动态分配，堆和栈的区别，以及由此联想的到的类成员变量的分配问题</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/14/django/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -577,7 +691,7 @@ def CalNum(request, nNum):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -590,7 +704,7 @@ def CalNum(request, nNum):
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
