@@ -274,6 +274,321 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/26/hello-windows/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="youseatao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="code and insist">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/26/hello-windows/" itemprop="url">OpenGl学习记录(一)：创建窗口</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-26T16:09:21+08:00">
+                2017-05-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="创建窗口"><a href="#创建窗口" class="headerlink" title="创建窗口"></a>创建窗口</h1><p>因为学习opengl要引入一些库，正好电脑里有cocos2dx的代码，因为cocos2dx底层是用的opengl，所以打算直接利用之。</p>
+<p>首先创建一个cocos2dx的工程，然后找到工程的main函数入口,windows在win32/main.cpp</p>
+<pre><code>#include &quot;main.h&quot;
+#include &quot;AppDelegate.h&quot;
+
+USING_NS_CC;
+
+int WINAPI _tWinMain(HINSTANCE hInstance,
+                       HINSTANCE hPrevInstance,
+                       LPTSTR    lpCmdLine,
+                       int       nCmdShow)
+{
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+
+    // create the application instance
+    AppDelegate app;
+    return Application::getInstance()-&gt;run();
+}
+</code></pre><p>改成如下即可：</p>
+<pre><code>#include &quot;main.h&quot;
+#include &quot;../Classes/AppDelegate.h&quot;
+#include &quot;iostream&quot;
+#include &quot;glfw3.h&quot;
+
+
+int WINAPI _tWinMain(HINSTANCE hInstance,
+                       HINSTANCE hPrevInstance,
+                       LPTSTR    lpCmdLine,
+                       int       nCmdShow)
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    GLFWwindow *windows = glfwCreateWindow(800, 600, &quot;first windows&quot;, nullptr, nullptr);
+    if (windows == NULL)
+    {
+        std::cout &lt;&lt; &quot;windows init fail&quot; &lt;&lt; std::endl;
+        glfwTerminate();
+    }
+    glfwMakeContextCurrent(windows);
+
+    glewExperimental = true;
+    if (glewInit != GLEW_OK)
+    {
+        std::cout &lt;&lt; &quot;glew init fail&quot; &lt;&lt; std::endl;
+    }
+    glViewport(0, 0, 800, 600);
+
+    while (!glfwWindowShouldClose(windows))
+    {
+        glfwPollEvents();
+        glfwSwapBuffers(windows);
+    }
+    return 0;
+}
+</code></pre><p>总的流程就是初始化glfw，初始化glew，创建窗口，绑定窗口到opengl上下文，设置opengl视窗，在循环体内响应输入，交换缓冲区。</p>
+<h1 id="绑定输入回调"><a href="#绑定输入回调" class="headerlink" title="绑定输入回调"></a>绑定输入回调</h1><pre><code>glfwSetKeyCallback(windows, keycallback);
+</code></pre><p>回调函数的样式如下：</p>
+<pre><code>void keycallback(GLFWwindow *windows, int key, int code, int action, int mode)
+{
+    if (key == GLFW_KEY_ESCAPE &amp;&amp; action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(windows, true);
+    }
+}
+</code></pre><p>当操作系统的输入事件发生了，是怎样调用到此函数的，我猜想是glfwSetKeyCallback只是保留函数指针，在glfwPollEvents()的时候会去检测底层操作系统的输入事件，如果有输入则调用callback，可以发现把glfwPollEvents()函数去掉的话，回调确实没有正确调用了，以下是glfwPollEvents的注释：</p>
+<blockquote>
+<ul>
+<li>This function processes only those events that are already in the event</li>
+<li>queue and then returns immediately.  Processing events will cause the window</li>
+<li>and input callbacks associated with those events to be called.<br>*</li>
+<li>On some platforms, a window move, resize or menu operation will cause event</li>
+<li>processing to block.  This is due to how event processing is designed on</li>
+<li>those platforms.  You can use the</li>
+<li><a href="@ref window_refresh">window refresh callback</a> to redraw the contents of</li>
+<li>your window when necessary during such operations.<br>*</li>
+<li>On some platforms, certain events are sent directly to the application</li>
+<li>without going through the event queue, causing callbacks to be called</li>
+<li>outside of a call to one of the event processing functions.</li>
+</ul>
+</blockquote>
+<p>前半段的注释和我的猜想一致，但是最后一段</p>
+<blockquote>
+<ul>
+<li>On some platforms, certain events are sent directly to the application</li>
+<li>without going through the event queue, causing callbacks to be called</li>
+<li>outside of a call to one of the event processing functions.</li>
+</ul>
+</blockquote>
+<p>这段话的意思是在某些平台上，事件直接和应用进行了绑定，不需要事件处理函数。这个地方感觉很疑惑，不需要事件处理函数那就是底层会直接调用上层的函数？感觉不科学，看来还是要补习补习操作系统。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/22/python-hooks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="youseatao">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="code and insist">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/05/22/python-hooks/" itemprop="url">python中常遇见的坑</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-22T22:19:35+08:00">
+                2017-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p> 先埋坑<br>1.mro<br>2.深拷贝浅拷贝 可变变量 不可变变量<br>3.迭代器 生成器<br>4.协程<br>5.装饰器<br>6.编码 utf8 unicode</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/22/skilltree/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -815,7 +1130,7 @@ def CalNum(request, nNum):
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -828,7 +1143,7 @@ def CalNum(request, nNum):
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
